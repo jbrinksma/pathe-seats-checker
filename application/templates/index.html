@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="row">
+        <form class="col-sm-5 form-inline d-flex justify-content-center md-form form-sm mt-0" id="search-movies">
+            <span>Film:</span>
+            <input class="form-control form-control-sm ml-3 w-75" type="text" placeholder="Search" aria-label="Search">
+        </form>
+        <form class="col-sm-5 form-inline d-flex justify-content-center md-form form-sm mt-0" id="search-cinemas">
+            <span>Bioscoop:</span>
+            <input class="form-control form-control-sm ml-3 w-75" type="text" placeholder="Search" aria-label="Search">
+        </form>
+    </div>
+
+    <div class="mt-4 movie_info">
+        {% if data %}
+        {% for movie in data %}
+            <div class="movie_container mt-5" name="{{movie[0]['name']}}">
+            <h3>{{movie[0]["name"]}} (duur {{movie[0]["duration"]}} min)</h3>
+            {% if movie[1] %}
+            {% for cinema in movie[1] %}
+                <div class="cinema_container" name="{{cinema[0]}}">
+                <h5>{{cinema[0]}}</h5>
+                {% if cinema[1] %}
+                {% for schedule in cinema[1] %}
+                    <div class="schedule_container">
+                    {% if schedule["soldout"] == True %}
+                        <p>Start om: {{schedule["start_time"]}}  -  <font style="color:red;">UITVERKOCHT!</font></p>
+                    {% elif schedule["seats_total"] <= 0 %}
+                        <p>Start om: {{schedule["start_time"]}}  -  <font style="color:red;">Kan geen tickets meer krijgen :(</font></p>
+                    {% elif schedule["seats_available"] <= 0 %}
+                        <p>Start om: {{schedule["start_time"]}}  -  <font style="color:red;">Stoelen vrij: {{schedule["seats_available"]}}/{{schedule["seats_total"]}}</font></p>
+                    {% elif schedule["seats_available"] <= 40 %}
+                        <p>Start om: {{schedule["start_time"]}}  -  <font style="color:orange;">Stoelen vrij: {{schedule["seats_available"]}}/{{schedule["seats_total"]}}</font></p>
+                    {% else %}
+                        <p>Start om: {{schedule["start_time"]}}  -  Stoelen vrij: {{schedule["seats_available"]}}/{{schedule["seats_total"]}}</p>
+                    {% endif %}
+                    </div>
+                {% endfor %}
+                {% endif %}
+                </div>
+            {% endfor %}
+            {% endif %}
+            </div>
+        {% endfor %}
+        {% endif %}
+    </div>
+{% endblock content %}
