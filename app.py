@@ -22,11 +22,15 @@ if __name__ == "__main__":
     # TODO: Not initialized yet == Kan geen tickets meer krijgen
     # TODO: Percentage wise warnings seats?
     # TODO: What happens when object is deleted in different scoped session
+    print("Starting the application -- Welcome!")
     log_warn("Starting the application -- Welcome!")
     # Update all before starting server
+    print("Updating database... (this may take a couple minutes)")
     job_update_movie_list_and_schedules()
     job_update_total_seats_per_movie()
+    print("Done")
     # Start background update jobs
     start_db_updater()
+    print("Starting the webserver")
     log_warn("Starting the webserver")
     serve(app, port=80, threads=100)
