@@ -115,6 +115,7 @@ def update_seats_in_thread(session, schedule, movie_name):  # Asking for movie r
     schedule.seats_total = len(seats)
     schedule.seats_available = seats_available
     session.add(schedule)
+    session.commit()
 
 
 def job_update_movie_list_and_schedules():
