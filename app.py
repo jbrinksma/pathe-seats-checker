@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 from waitress import serve
 
 from application import app

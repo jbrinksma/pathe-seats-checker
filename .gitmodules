@@ -1,0 +1,3 @@
+[submodule "pathe-api"]
+	path = pathe-api
+	url = git@github.com:jbrinksma/pathe-api.git

@@ -1,16 +1,18 @@
 import logging
 from datetime import datetime
+from . import app
 
+flask_path = app.root_path
 
 db_logger = logging.getLogger("db_updates")
 db_logger.setLevel(level=logging.WARNING)
-fh = logging.FileHandler("application/logs/db_update_warn_err.log")
+fh = logging.FileHandler(flask_path + "/logs/db_update_warn_err.log")
 fh.setLevel(logging.WARNING)
 db_logger.addHandler(fh)
 
 db_logger_all = logging.getLogger("db_updates_all")
 db_logger_all.setLevel(level=logging.INFO)
-fh2 = logging.FileHandler("application/logs/db_update_info.log")
+fh2 = logging.FileHandler(flask_path + "/logs/db_update_info.log")
 fh2.setLevel(logging.INFO)
 db_logger_all.addHandler(fh2)
 
