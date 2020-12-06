@@ -2,41 +2,47 @@ import requests
 from flask import request, render_template
 
 from . import app
-from .database import Session, Movie, Schedule
+from .database import Session, Schedule
 from .utils import get_current_date
 from .logger import log_warn
 
 
-#
-# Don't worry, I made this list comprehension atrocity on purpose.
-#
-def database_to_frontend(session):
-    db_movies = session.query(Movie).all()
-    db_schedules = session.query(Schedule).all()
-    
-    movies = [[{"name": db_mov.name, "duration": db_mov.duration}, list()] for db_mov in db_movies]
-    for mov in movies:
-        unique_cinemas = []
-        for db_sched in db_schedules:
-            if mov[0]["name"] == db_sched.movie.name and db_sched.cinema not in unique_cinemas:
-                unique_cinemas.append(db_sched.cinema)
+class FrontendSchedule:
+    def __init__(self, db_sched):
+        self.movie_name = db_sched.movie_name
+        self.cinema_name = db_sched.cinema_name
+        self.start_time = db_sched.start_time
+        self.end_time = db_sched.end_time
+        self.soldout = db_sched.soldout
+        self.seats_available = db_sched.seats_available
+        self.seats_total = db_sched.seats_total
 
-        mov[1] = [[cinema, [{
-            "start_time": sched.start_time,
-            "seats_available": sched.seats_available,
-            "seats_total": sched.seats_total,
-            "soldout": sched.soldout,
-        } for sched in db_schedules if mov[0]["name"] == sched.movie.name and cinema == sched.cinema]] for cinema in unique_cinemas]
 
-    movies.sort(key=lambda e: e[0]["name"])  # Sort on movie name
+class FrontendCinema:
+    def __init__(self, db_schedules, cinema_name, movie_name):
+        self.name = cinema_name
+        self.schedules = [FrontendSchedule(sched) for sched in db_schedules if sched.cinema_name == cinema_name and sched.movie_name == movie_name]
 
-    # for movie in movies:
-    #     print(f"{movie[0]['name']}")
-    #     for cinema in movie[1]:
-    #         print(f"    {cinema[0]}")
-    #         for schedule in cinema[1]:
-    #             print(f"        {schedule['seats_available']}")
-    return movies
+
+class FrontendMovie:
+    def __init__(self, db_schedules, movie_name):
+        self.name = movie_name
+
+        cinemas = []
+        for sched in db_schedules:
+            if sched.cinema_name not in cinemas:
+                cinemas.append(sched.cinema_name)
+        cinemas.sort()
+        temp_cinemas = [FrontendCinema(db_schedules, cinema, movie_name) for cinema in cinemas]
+        self.cinemas = [cinema for cinema in temp_cinemas if cinema.schedules]
+
+
+def database_to_frontend(db_schedules):
+    movies = []
+    for sched in db_schedules:
+        if sched.movie_name not in movies:
+            movies.append(sched.movie_name)
+    return [FrontendMovie(db_schedules, movie) for movie in movies]
 
 
 @app.context_processor
@@ -51,7 +57,9 @@ def root():
         location = "FAILED TO GET LOCATION"
     log_warn(f"Incoming request from {request.remote_addr} in {location}")
 
-    data = database_to_frontend(Session)
+    db_schedules = Session.query(Schedule).all()
     Session.remove()
 
-    return render_template('index.html', data=data, date=get_current_date())
+    movies = database_to_frontend(db_schedules)
+
+    return render_template('index.html', movies=movies, date=get_current_date())

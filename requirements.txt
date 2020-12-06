@@ -3,3 +3,4 @@ flask
 waitress
 sqlalchemy
 apscheduler
+git+https://github.com/jbrinksma/pathe-api
