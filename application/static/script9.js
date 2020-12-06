@@ -17,6 +17,7 @@ searchMovies.addEventListener('keyup', function(e){
 searchCinemas.addEventListener('keyup', function(e){
     const term = e.target.value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     const cinemas = document.getElementsByClassName("cinema_container");
+    const movies = document.getElementsByClassName("movie_container");
     Array.from(cinemas).forEach(function(cinema){
         const title = cinema.getAttribute("name");
         if (title.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").indexOf(term) != -1){
@@ -26,16 +27,16 @@ searchCinemas.addEventListener('keyup', function(e){
         }
     });
     // Hide empty movie_container's as a result of this search
-    const movies = document.getElementsByClassName("movie_container");
     Array.from(movies).forEach(function(movie){
-        movie_cinemas = movie.children;
-        visible_childs = true;
+        var movie_cinemas = movie.children;
+        console.log(movie);
+        var visible_childs = false;
         Array.from(movie_cinemas).forEach(function(child) {
-            if (child.style.display != "none") {
-                visible_childs = false;
-                break;
+            if (child.getAttribute("class") == "cinema_container" && child.style.display != "none") {
+                visible_childs = true;
             }
         });
+        console.log(visible_childs);
         if (!visible_childs) {
             console.log("rekt");
             movie.style.display = "none";
@@ -43,5 +44,5 @@ searchCinemas.addEventListener('keyup', function(e){
             console.log("rektnot");
             movie.style.display = "block";
         }
-    })
+    });
 });

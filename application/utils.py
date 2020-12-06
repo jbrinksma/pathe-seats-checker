@@ -1,13 +1,16 @@
 from datetime import date
-from .config import CINEMAS
+from datetime import datetime
 
 
 def get_current_date():
     return str(date.today().strftime("%d-%m-%Y"))
 
 
-def format_cinema_num_str(cinemas:"List of dictionary entries (name:int)"):
-    cinema_num_str = ""
-    for cinema in cinemas:
-        cinema_num_str += f"{CINEMAS[cinema]},"
-    return cinema_num_str[:-1] + "/"
+def get_sched_duration(start, end):
+    start_time = datetime.strptime(start[:-6], "%Y-%m-%dT%H:%M:%S")
+    end_time = datetime.strptime(end[:-6], "%Y-%m-%dT%H:%M:%S")
+    tdelta = end_time - start_time
+    return f"{str(tdelta.total_seconds() / 60)[:-2]}"  # Get total minutes and slice off trailing decimal
+
+def get_sched_time(time_str):
+    return f"{time_str[11:-6]}"
